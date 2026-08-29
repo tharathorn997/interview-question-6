@@ -1,0 +1,86 @@
+<div class="page-wrapper">
+  <!-- Header -->
+  <div class="header">
+    <span>IT 06-1</span>
+  </div>
+
+  <div class="content">
+    <!-- Input Section -->
+    <div class="input-section">
+      <label for="productCode">รหัสสินค้า</label>
+      <div class="input-group">
+        <input
+          id="productCode"
+          type="text"
+          [(ngModel)]="productCode"
+          (input)="onInputChange()"
+          (keydown.enter)="addProduct()"
+          placeholder="XXXX-XXXX-XXXX-XXXX"
+          maxlength="19"
+          class="product-input"
+          autocomplete="off"
+        />
+        <button type="button" class="btn-add" (click)="addProduct()" [disabled]="isLoading">
+          @if (isLoading) {
+            <span>กำลังบันทึก...</span>
+          } @else {
+            <span>ADD</span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    @if (errorMessage) {
+      <div class="error-message">⚠ {{ errorMessage }}</div>
+    }
+
+    <!-- Product Table -->
+    <div class="table-wrapper">
+      <table class="product-table">
+        <thead>
+          <tr>
+            <th class="col-id">Id</th>
+            <th class="col-code">รหัสสินค้า (16 หลัก)</th>
+            <th class="col-barcode">บาร์โค้ดสินค้า</th>
+            <th class="col-action">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products; track product.id) {
+            <tr>
+              <td class="col-id">{{ product.id }}</td>
+              <td class="col-code">{{ product.productCode }}</td>
+              <td class="col-barcode">
+                <svg [appBarcode]="getBarcodeValue(product.productCode)"></svg>
+              </td>
+              <td class="col-action">
+                <button type="button" class="btn-delete" (click)="confirmDelete(product)">ลบ</button>
+              </td>
+            </tr>
+          }
+          @empty {
+            <tr>
+              <td colspan="4" class="empty-row">ยังไม่มีข้อมูลสินค้า</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Confirm Dialog -->
+  @if (showConfirmDialog) {
+    <div class="overlay" (click)="cancelDelete()">
+      <div class="dialog" (click)="$event.stopPropagation()">
+        <p class="dialog-text">
+          ต้องการลบข้อมูล รหัสสินค้า <strong>{{ productToDelete?.productCode }}</strong> หรือไม่ ?
+        </p>
+        <div class="dialog-actions">
+          <button type="button" class="btn-ok" (click)="executeDelete()">ตกลง</button>
+          <button type="button" class="btn-cancel" (click)="cancelDelete()">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

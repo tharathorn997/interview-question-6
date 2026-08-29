@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: product-management
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: example.com/product-management-api:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: ConnectionStrings__DefaultConnection
+              value: "Server=mssql-service,1433;Database=ProductManagement;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+          readinessProbe:
+            httpGet:
+              path: /api/products
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/products
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
